@@ -126,7 +126,6 @@
         .attachment-box {
             margin-top: 15px; padding: 12px; background: var(--bg);
             border-radius: 6px; display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 10px;
         }
         .attachment-link {
             color: var(--cyan); text-decoration: none; font-weight: 600; font-size: 0.9rem; cursor: pointer;
@@ -144,7 +143,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- AUTHOR CREDENTIALS SIGNATURE PROFILES PANEL -->
+        <!-- SHIVAM SECURITY VALIDATED BRANDING IDENTITY BANNER -->
         <div class="branding-banner">
             <span>👨‍🔬 Author: <strong>Shivam Kumar</strong></span>
             <span>🏛️ Branch: <strong>Industrial Chemistry</strong></span>
@@ -159,9 +158,7 @@
             </div>
         </header>
 
-        <!-- PORTAL GRID SYSTEM INTERFACE -->
         <div class="grid" id="mainPortalView">
-            <!-- INPUT SUBMISSION CONTENT FIELDS -->
             <div class="card">
                 <h2>Contribute Data</h2>
                 <form id="submissionForm" enctype="multipart/form-data">
@@ -194,13 +191,12 @@
 
                     <div class="form-group">
                         <label>Detailed Text Content</label>
-                        <textarea id="formContent" name="content" rows="6" required placeholder="Describe chemical structures or analytical processes..."></textarea>
+                        <textarea id="formContent" name="content" rows="6" required placeholder="Describe chemical formulas..."></textarea>
                     </div>
 
-                    <!-- OPTIONAL EXTERNAL RESOURCE LINK ROUTER -->
                     <div class="form-group">
                         <label>Reference URL / Folder Link (Optional)</label>
-                        <input type="url" id="formLinkUrl" name="linkUrl" placeholder="e.g., Google Drive link, web article URL...">
+                        <input type="url" id="formLinkUrl" name="linkUrl" placeholder="e.g., Google Drive link...">
                     </div>
 
                     <div class="form-group">
@@ -212,7 +208,6 @@
                 </form>
             </div>
 
-            <!-- PUBLIC CARD LOG FEED -->
             <div>
                 <h2>Syllabus Database Modules</h2>
                 <div class="subject-filter-bar">
@@ -229,7 +224,6 @@
             </div>
         </div>
 
-        <!-- ADMINISTRATIVE GATES CONTROL VIEWS -->
         <div class="hidden" id="adminAuthView">
             <div class="card login-box" id="loginFormContainer">
                 <h2>Admin Verification Gate</h2>
@@ -255,8 +249,8 @@
         </div>
     </div>
     <script>
-        // LOCK ABSOLUTE BIND ROUTE PATHS TO THE BACKGROUND ENGINE SERVER
-        const API_BASE_URL = "http://127.0.0.1:5000";
+        // IMMUTABLE DYNAMIC ADAPTER: Captures domain names dynamically (Fixes all mobile permission failures)
+        const API_BASE_URL = window.location.origin;
 
         let activeFilter = 'All';
         let isAdminAuthenticated = false;
@@ -268,7 +262,7 @@
                     let data = await response.json();
                     renderPublicViews(data);
                 }
-            } catch (e) { console.error("Error communicating with full-stack server backend engine."); }
+            } catch (e) { console.error("Error communicating with backend."); }
         }
 
         async function fetchPendingTopics() {
@@ -279,7 +273,7 @@
                     let data = await response.json();
                     renderAdminViews(data);
                 }
-            } catch (e) { console.error("Error fetching moderation datasets."); }
+            } catch (e) { console.error("Error fetching datasets."); }
         }
 
         function handleSubjectChange() {
@@ -351,11 +345,15 @@
                     method: 'POST',
                     body: formData
                 });
-                let data = await response.json();
-                alert(data.message);
-                this.reset();
-                fetchApprovedTopics();
-            } catch (e) { alert('Submission failed. Make sure your server is running at http://127.0.0.1:5000'); }
+                if (response.ok) {
+                    let data = await response.json();
+                    alert(data.message);
+                    this.reset();
+                    fetchApprovedTopics();
+                } else {
+                    alert('Server rejected payload. Check connection logs.');
+                }
+            } catch (e) { alert('Submission failed. Background cloud instance waking up, try again in a moment.'); }
         };
 
         async function processApproval(id, isApproved) {
@@ -368,7 +366,7 @@
                     alert(isApproved ? 'Approved & published live globally!' : 'Purged from data registries.');
                     fetchPendingTopics();
                 }
-            } catch (e) { console.error("Action handler transaction network exception."); }
+            } catch (e) { console.error("Action error."); }
         }
 
         function filterSubject(subjectName, element) {
@@ -379,7 +377,6 @@
             fetchApprovedTopics();
         }
 
-        // BROWSER DISPATCH DOWNLOAD ENGINE (Bypasses about:blank#blocked and forces real streaming downloads)
         async function forceDownloadAsset(fileUrl, fileName) {
             try {
                 const response = await fetch(fileUrl);
@@ -387,13 +384,13 @@
                 const objectUrl = window.URL.createObjectURL(blob);
                 const downloadAnchor = document.createElement('a');
                 downloadAnchor.href = objectUrl;
-                downloadAnchor.download = fileName || 'chemistry_reference_document.pdf';
+                downloadAnchor.target = '_blank';
+                downloadAnchor.download = fileName || 'chemistry_reference.pdf';
                 document.body.appendChild(downloadAnchor);
                 downloadAnchor.click();
                 document.body.removeChild(downloadAnchor);
                 window.URL.revokeObjectURL(objectUrl);
             } catch (err) {
-                // Fallback direct link open if file mapping parameters are secure
                 window.open(fileUrl, '_blank');
             }
         }
@@ -450,7 +447,6 @@
             });
         }
 
-        // Initialize setup components
         fetchApprovedTopics();
     </script>
 </body>
