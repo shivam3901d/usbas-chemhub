@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USBAS ChemHub Portal</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --cyan: #06b6d4;
+            --green: #10b981;
+            --red: #ef4444;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .branding-banner {
+            background: linear-gradient(90deg, #1e293b, #0f172a);
+            border: 1px solid #334155;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .branding-banner span strong { color: var(--cyan); }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--card);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        header h1 { margin: 0; font-size: 1.8rem; }
+        .nav-buttons { display: flex; gap: 10px; }
+        .btn-nav {
+            background: var(--card);
+            color: var(--cyan);
+            border: 1px solid var(--cyan);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-nav.active {
+            background: var(--cyan);
+            color: var(--bg);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+        .card {
+            background: var(--card);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            height: fit-content;
+        }
+        .card h2 {
+            margin-top: 0; margin-bottom: 20px; font-size: 1.4rem;
+            border-bottom: 1px solid #334155; padding-bottom: 10px;
+        }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--cyan); font-size: 0.9rem; }
+        input, select, textarea {
+            width: 100%; padding: 12px; background: var(--bg); border: 1px solid #475569;
+            color: white; border-radius: 8px; box-sizing: border-box; font-size: 0.95rem;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--cyan); }
+        button.btn-submit {
+            background: var(--cyan); color: var(--bg); border: none; padding: 14px 20px;
+            font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1rem;
+        }
+        .subject-filter-bar {
+            display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px;
+            background: var(--card); padding: 15px; border-radius: 10px;
+        }
+        .filter-badge {
+            padding: 8px 16px; background: var(--bg); border: 1px solid #334155;
+            border-radius: 20px; font-size: 0.85rem; cursor: pointer; color: var(--text);
+            font-weight: 600; transition: all 0.2s ease;
+        }
+        .filter-badge:hover { border-color: var(--cyan); }
+        .filter-badge.active {
+            background: var(--cyan); color: var(--bg); border-color: var(--cyan);
+        }
+        .topic-list-container { display: flex; flex-direction: column; gap: 20px; }
+        .topic-card {
+            background: var(--card); border-left: 5px solid var(--cyan); padding: 20px;
+            border-radius: 0 12px 12px 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            margin-bottom: 15px;
+        }
+        .topic-card.pending { border-left-color: var(--text-muted); }
+        .topic-card h3 { margin: 0 0 10px 0; font-size: 1.3rem; }
+        .meta-tags { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .tag {
+            font-size: 0.75rem; padding: 3px 8px; border-radius: 4px;
+            background: rgba(6, 182, 212, 0.1); color: var(--cyan); font-weight: 600;
+        }
+        .tag.sem { background: rgba(16, 185, 129, 0.1); color: var(--green); }
+        .topic-content { white-space: pre-wrap; color: #cbd5e1; font-size: 0.95rem; }
+        .attachment-box {
+            margin-top: 15px; padding: 12px; background: var(--bg);
+            border-radius: 6px; display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .attachment-link {
+            color: var(--cyan); text-decoration: none; font-weight: 600; font-size: 0.9rem; cursor: pointer;
+        }
+        .admin-actions {
+            margin-top: 20px; display: flex; gap: 10px;
+            border-top: 1px solid #334155; padding-top: 15px;
+        }
+        .btn-action { padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; flex: 1; }
+        .btn-approve { background: var(--green); color: var(--bg); }
+        .btn-reject { background: var(--red); color: white; }
+        .hidden { display: none !important; }
+        .login-box { max-width: 400px; margin: 60px auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- AUTHOR CREDENTIALS SIGNATURE PROFILES PANEL -->
+        <div class="branding-banner">
+            <span>👨‍🔬 Author: <strong>Shivam Kumar</strong></span>
+            <span>🏛️ Branch: <strong>Industrial Chemistry</strong></span>
+            <span>✉️ Contact: <strong>shivamkr3901@gmail.com</strong></span>
+        </div>
+
+        <header>
+            <h1>🧪 USBAS ChemHub Portal</h1>
+            <div class="nav-buttons">
+                <button class="btn-nav active" id="viewPortalBtn" onclick="switchView('portal')">Public Portal</button>
+                <button class="btn-nav" id="viewAdminBtn" onclick="switchView('admin')">🛡️ Admin Login Panel</button>
+            </div>
+        </header>
+
+        <!-- PORTAL GRID SYSTEM INTERFACE -->
+        <div class="grid" id="mainPortalView">
+            <!-- INPUT SUBMISSION CONTENT FIELDS -->
+            <div class="card">
+                <h2>Contribute Data</h2>
+                <form id="submissionForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Target Subject Segment</label>
+                        <select id="formSubject" name="subject" required onchange="handleSubjectChange()">
+                            <option value="Organic Chemistry">Organic Chemistry</option>
+                            <option value="Physical Chemistry">Physical Chemistry</option>
+                            <option value="Biochemistry">Biochemistry</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Ethics">Ethics</option>
+                            <option value="MDC">MDC</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="semesterGroup">
+                        <label>Target Semester Catalog</label>
+                        <select id="formSemester" name="semester">
+                            <option value="Semester 1">Semester 1 Data</option>
+                            <option value="Semester 3">Semester 3 Data</option>
+                            <option value="General Reference">General Reference</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Topic / Concept Title</label>
+                        <input type="text" id="formTitle" name="title" required placeholder="e.g., SN1 Substitution Mechanism">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Detailed Text Content</label>
+                        <textarea id="formContent" name="content" rows="6" required placeholder="Describe chemical structures or analytical processes..."></textarea>
+                    </div>
+
+                    <!-- OPTIONAL EXTERNAL RESOURCE LINK ROUTER -->
+                    <div class="form-group">
+                        <label>Reference URL / Folder Link (Optional)</label>
+                        <input type="url" id="formLinkUrl" name="linkUrl" placeholder="e.g., Google Drive link, web article URL...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload Diagrams, Photos, or PDFs (Optional)</label>
+                        <input type="file" id="formAttachment" name="attachment" accept="image/*,.pdf">
+                    </div>
+
+                    <button type="submit" class="btn-submit">Submit to Admin Queue</button>
+                </form>
+            </div>
+
+            <!-- PUBLIC CARD LOG FEED -->
+            <div>
+                <h2>Syllabus Database Modules</h2>
+                <div class="subject-filter-bar">
+                    <div class="filter-badge active" onclick="filterSubject('All', this)">All Subjects</div>
+                    <div class="filter-badge" onclick="filterSubject('Organic Chemistry', this)">Organic Chemistry</div>
+                    <div class="filter-badge" onclick="filterSubject('Physical Chemistry', this)">Physical Chemistry</div>
+                    <div class="filter-badge" onclick="filterSubject('Biochemistry', this)">Biochemistry</div>
+                    <div class="filter-badge" onclick="filterSubject('Mathematics', this)">Mathematics</div>
+                    <div class="filter-badge" onclick="filterSubject('Physics', this)">Physics</div>
+                    <div class="filter-badge" onclick="filterSubject('Ethics', this)">Ethics</div>
+                    <div class="filter-badge" onclick="filterSubject('MDC', this)">MDC</div>
+                </div>
+                <div id="publicContainer" class="topic-list-container"></div>
+            </div>
+        </div>
+
+        <!-- ADMINISTRATIVE GATES CONTROL VIEWS -->
+        <div class="hidden" id="adminAuthView">
+            <div class="card login-box" id="loginFormContainer">
+                <h2>Admin Verification Gate</h2>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="adminUser" placeholder="shivam">
+                </div>
+                <div class="form-group">
+                    <label>Security Password</label>
+                    <input type="password" id="adminPass" placeholder="•••••••••">
+                </div>
+                <button class="btn-submit" onclick="attemptAdminLogin()">Access Moderator Engine</button>
+            </div>
+
+            <div class="card hidden" id="adminDashboardView">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>🛡️ Admin Verification Sandbox</h2>
+                    <button class="btn-nav" onclick="adminLogOut()" style="border-color: var(--red); color: var(--red);">Log Out</button>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 25px;">Logged in as: <strong>shivam</strong></p>
+                <div id="adminQueueContainer" class="topic-list-container"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // LOCK ABSOLUTE BIND ROUTE PATHS TO THE BACKGROUND ENGINE SERVER
+        const API_BASE_URL = "http://127.0.0.1:5000";
+
+        let activeFilter = 'All';
+        let isAdminAuthenticated = false;
+
+        async function fetchApprovedTopics() {
+            try {
+                let response = await fetch(`${API_BASE_URL}/api/topics`);
+                if (response.ok) {
+                    let data = await response.json();
+                    renderPublicViews(data);
+                }
+            } catch (e) { console.error("Error communicating with full-stack server backend engine."); }
+        }
+
+        async function fetchPendingTopics() {
+            if (!isAdminAuthenticated) return;
+            try {
+                let response = await fetch(`${API_BASE_URL}/api/admin/pending`);
+                if (response.ok) {
+                    let data = await response.json();
+                    renderAdminViews(data);
+                }
+            } catch (e) { console.error("Error fetching moderation datasets."); }
+        }
+
+        function handleSubjectChange() {
+            const subject = document.getElementById('formSubject').value;
+            const semGroup = document.getElementById('semesterGroup');
+            if (subject === 'Organic Chemistry') {
+                semGroup.classList.remove('hidden');
+            } else {
+                semGroup.classList.add('hidden');
+                document.getElementById('formSemester').value = 'General Reference';
+            }
+        }
+
+        function switchView(targetView) {
+            document.getElementById('viewPortalBtn').classList.toggle('active', targetView === 'portal');
+            document.getElementById('viewAdminBtn').classList.toggle('active', targetView === 'admin');
+            document.getElementById('mainPortalView').classList.toggle('hidden', targetView !== 'portal');
+            document.getElementById('adminAuthView').classList.toggle('hidden', targetView !== 'admin');
+
+            if (targetView === 'admin') {
+                document.getElementById('loginFormContainer').classList.toggle('hidden', isAdminAuthenticated);
+                document.getElementById('adminDashboardView').classList.toggle('hidden', !isAdminAuthenticated);
+                fetchPendingTopics();
+            } else {
+                fetchApprovedTopics();
+            }
+        }
+
+        async function attemptAdminLogin() {
+            const username = document.getElementById('adminUser').value;
+            const password = document.getElementById('adminPass').value;
+
+            try {
+                let response = await fetch(`${API_BASE_URL}/api/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    isAdminAuthenticated = true;
+                    document.getElementById('loginFormContainer').classList.add('hidden');
+                    document.getElementById('adminDashboardView').classList.remove('hidden');
+                    document.getElementById('adminUser').value = '';
+                    document.getElementById('adminPass').value = '';
+                    fetchPendingTopics();
+                } else {
+                    alert('Invalid Username or Password credentials!');
+                }
+            } catch (e) { alert('Authentication endpoint timed out.'); }
+        }
+
+        function adminLogOut() {
+            isAdminAuthenticated = false;
+            switchView('portal');
+        }
+
+        document.getElementById('submissionForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            const optionalLink = document.getElementById('formLinkUrl').value;
+            if(optionalLink) {
+                formData.set('content', formData.get('content') + "\n\n🔗 Attached Resource URL: " + optionalLink);
+            }
+
+            try {
+                let response = await fetch(`${API_BASE_URL}/api/topics/submit`, {
+                    method: 'POST',
+                    body: formData
+                });
+                let data = await response.json();
+                alert(data.message);
+                this.reset();
+                fetchApprovedTopics();
+            } catch (e) { alert('Submission failed. Make sure your server is running at http://127.0.0.1:5000'); }
+        };
+
+        async function processApproval(id, isApproved) {
+            try {
+                let url = isApproved ? `${API_BASE_URL}/api/admin/approve/${id}` : `${API_BASE_URL}/api/admin/reject/${id}`;
+                let method = isApproved ? 'POST' : 'DELETE';
+                
+                let response = await fetch(url, { method });
+                if (response.ok) {
+                    alert(isApproved ? 'Approved & published live globally!' : 'Purged from data registries.');
+                    fetchPendingTopics();
+                }
+            } catch (e) { console.error("Action handler transaction network exception."); }
+        }
+
+        function filterSubject(subjectName, element) {
+            activeFilter = subjectName;
+            const badges = document.querySelectorAll('.filter-badge');
+            badges.forEach(badge => badge.classList.remove('active'));
+            element.classList.add('active');
+            fetchApprovedTopics();
+        }
+
+        // BROWSER DISPATCH DOWNLOAD ENGINE (Bypasses about:blank#blocked and forces real streaming downloads)
+        async function forceDownloadAsset(fileUrl, fileName) {
+            try {
+                const response = await fetch(fileUrl);
+                const blob = await response.blob();
+                const objectUrl = window.URL.createObjectURL(blob);
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.href = objectUrl;
+                downloadAnchor.download = fileName || 'chemistry_reference_document.pdf';
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                document.body.removeChild(downloadAnchor);
+                window.URL.revokeObjectURL(objectUrl);
+            } catch (err) {
+                // Fallback direct link open if file mapping parameters are secure
+                window.open(fileUrl, '_blank');
+            }
+        }
+
+        function renderPublicViews(data) {
+            const container = document.getElementById('publicContainer');
+            container.innerHTML = '';
+            let matches = 0;
+
+            data.forEach(item => {
+                if (activeFilter === 'All' || item.subject === activeFilter) {
+                    matches++;
+                    let fileSnippet = item.filePath ? `
+                        <div class="attachment-box">
+                            <span class="attachment-link" onclick="forceDownloadAsset('${API_BASE_URL}${item.filePath}', '${item.fileName}')">
+                                📄 Download & View Attached Document: ${item.fileName}
+                            </span>
+                        </div>` : '';
+                    container.innerHTML += `
+                        <div class="topic-card">
+                            <h3>${item.title}</h3>
+                            <div class="meta-tags"><span class="tag">${item.subject}</span><span class="tag sem">${item.semester}</span></div>
+                            <div class="topic-content" style="white-space: pre-wrap;">${item.content}</div>
+                            ${fileSnippet}
+                        </div>`;
+                }
+            });
+
+            if (matches === 0) container.innerHTML = '<p style="color: var(--text-muted)">No topics verified for this subject section yet.</p>';
+        }
+
+        function renderAdminViews(data) {
+            const container = document.getElementById('adminQueueContainer');
+            container.innerHTML = data.length ? '' : '<p style="color: var(--text-muted)">Verification Queue Clean. All submissions processed.</p>';
+
+            data.forEach(item => {
+                let fileSnippet = item.filePath ? `
+                    <div class="attachment-box">
+                        <span class="attachment-link" onclick="forceDownloadAsset('${API_BASE_URL}${item.filePath}', '${item.fileName}')">
+                            📄 Download Attached File: ${item.fileName}
+                        </span>
+                    </div>` : '';
+                container.innerHTML += `
+                    <div class="topic-card pending">
+                        <h3>${item.title}</h3>
+                        <div class="meta-tags"><span class="tag">${item.subject}</span><span class="tag sem">${item.semester}</span></div>
+                        <div class="topic-content" style="white-space: pre-wrap;">${item.content}</div>
+                        ${fileSnippet}
+                        <div class="admin-actions">
+                            <button class="btn-action btn-approve" onclick="processApproval('${item._id}', true)">Verify & Publish Live</button>
+                            <button class="btn-action btn-reject" onclick="processApproval('${item._id}', false)">Purge & Delete</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // Initialize setup components
+        fetchApprovedTopics();
+    </script>
+</body>
+</html>
